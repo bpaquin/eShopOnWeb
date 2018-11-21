@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Microsoft.eShopWeb.ViewModels
+namespace Microsoft.eShopWeb.Web.ViewModels
 {
-
     public class BasketViewModel
     {
         public int Id { get; set; }

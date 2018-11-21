@@ -1,11 +1,11 @@
-﻿using ApplicationCore.Interfaces;
+﻿using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.eShopWeb.ApplicationCore.Entities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Data
+namespace Microsoft.eShopWeb.Infrastructure.Data
 {
     /// <summary>
     /// "There's some repetition here - couldn't we have some the sync methods call the async?"
@@ -20,11 +20,21 @@ namespace Infrastructure.Data
         {
             _dbContext = dbContext;
         }
+        private IQueryable<T> ApplySpecification(ISpecification<T> spec)
+        {
+            return SpecificationEvaluator<T>.GetQuery(_dbContext.Set<T>().AsQueryable(), spec);
+        }
 
         public virtual T GetById(int id)
         {
             return _dbContext.Set<T>().Find(id);
         }
+
+        public T GetSingleBySpec(ISpecification<T> spec)
+        {
+            return List(spec).FirstOrDefault();
+        }
+
 
         public virtual async Task<T> GetByIdAsync(int id)
         {
@@ -36,35 +46,26 @@ namespace Infrastructure.Data
             return _dbContext.Set<T>().AsEnumerable();
         }
 
-        public async Task<List<T>> ListAllAsync()
+        public async Task<IReadOnlyList<T>> ListAllAsync()
         {
             return await _dbContext.Set<T>().ToListAsync();
         }
 
         public IEnumerable<T> List(ISpecification<T> spec)
         {
-            var queryableResultWithIncludes = spec.Includes
-                .Aggregate(_dbContext.Set<T>().AsQueryable(),
-                    (current, include) => current.Include(include));
-            var secondaryResult = spec.IncludeStrings
-                .Aggregate(queryableResultWithIncludes,
-                    (current, include) => current.Include(include));
-            return secondaryResult
-                            .Where(spec.Criteria)
-                            .AsEnumerable();
+            return ApplySpecification(spec).AsEnumerable();
         }
-        public async Task<List<T>> ListAsync(ISpecification<T> spec)
+        public async Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec)
         {
-            var queryableResultWithIncludes = spec.Includes
-                .Aggregate(_dbContext.Set<T>().AsQueryable(),
-                    (current, include) => current.Include(include));
-            var secondaryResult = spec.IncludeStrings
-                .Aggregate(queryableResultWithIncludes,
-                    (current, include) => current.Include(include));
-
-            return await secondaryResult
-                            .Where(spec.Criteria)
-                            .ToListAsync();
+            return await ApplySpecification(spec).ToListAsync();
+        }
+        public int Count(ISpecification<T> spec)
+        {
+            return ApplySpecification(spec).Count();
+        }
+        public async Task<int> CountAsync(ISpecification<T> spec)
+        {
+            return await ApplySpecification(spec).CountAsync();
         }
 
         public T Add(T entity)

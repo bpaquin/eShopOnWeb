@@ -1,21 +1,21 @@
-﻿using ApplicationCore.Interfaces;
-using Infrastructure.Identity;
+﻿using Microsoft.eShopWeb.Infrastructure.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.eShopWeb.ViewModels;
-using System;
+using Microsoft.eShopWeb;
+using Microsoft.eShopWeb.Web.Interfaces;
+using Microsoft.eShopWeb.Web.ViewModels;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Web.ViewComponents
+namespace Microsoft.eShopWeb.Web.ViewComponents
 {
     public class Basket : ViewComponent
     {
-        private readonly IBasketService _basketService;
+        private readonly IBasketViewModelService _basketService;
         private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public Basket(IBasketService basketService,
+        public Basket(IBasketViewModelService basketService,
                         SignInManager<ApplicationUser> signInManager)
         {
             _basketService = basketService;

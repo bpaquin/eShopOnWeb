@@ -1,29 +1,30 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using ApplicationCore.Interfaces;
+using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Microsoft.eShopWeb.ViewModels;
+using Microsoft.eShopWeb.Web.ViewModels;
 using Microsoft.AspNetCore.Identity;
-using Infrastructure.Identity;
+using Microsoft.eShopWeb.Infrastructure.Identity;
 using System;
-using Web;
 using System.Collections.Generic;
-using ApplicationCore.Entities.OrderAggregate;
+using Microsoft.eShopWeb.ApplicationCore.Entities.OrderAggregate;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.eShopWeb.Web.Interfaces;
 
-namespace Microsoft.eShopWeb.Controllers
+namespace Microsoft.eShopWeb.Web.Controllers
 {
     [Route("[controller]/[action]")]
     public class BasketController : Controller
     {
         private readonly IBasketService _basketService;
-        private const string _basketSessionKey = "basketId";
         private readonly IUriComposer _uriComposer;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IAppLogger<BasketController> _logger;
         private readonly IOrderService _orderService;
+        private readonly IBasketViewModelService _basketViewModelService;
 
         public BasketController(IBasketService basketService,
+            IBasketViewModelService basketViewModelService,
             IOrderService orderService,
             IUriComposer uriComposer,
             SignInManager<ApplicationUser> signInManager,
@@ -34,6 +35,7 @@ namespace Microsoft.eShopWeb.Controllers
             _signInManager = signInManager;
             _logger = logger;
             _orderService = orderService;
+            _basketViewModelService = basketViewModelService;
         }
 
         [HttpGet]
@@ -87,10 +89,10 @@ namespace Microsoft.eShopWeb.Controllers
         {
             if (_signInManager.IsSignedIn(HttpContext.User))
             {
-                return await _basketService.GetOrCreateBasketForUser(User.Identity.Name);
+                return await _basketViewModelService.GetOrCreateBasketForUser(User.Identity.Name);
             }
             string anonymousId = GetOrSetBasketCookie();
-            return await _basketService.GetOrCreateBasketForUser(anonymousId);
+            return await _basketViewModelService.GetOrCreateBasketForUser(anonymousId);
         }
 
         private string GetOrSetBasketCookie()

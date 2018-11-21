@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Microsoft.eShopWeb.ViewModels
+namespace Microsoft.eShopWeb.Web.ViewModels
 {
-
     public class OrderItemViewModel
     {
         public int ProductId { get; set; }
@@ -19,5 +18,4 @@ namespace Microsoft.eShopWeb.ViewModels
 
         public string PictureUrl { get; set; }
     }
-
 }
